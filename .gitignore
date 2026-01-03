@@ -1,0 +1,43 @@
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# dependencies
+node_modules/
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# testing - Python
+.pytest_cache/
+pytest-report/
+htmlcov/
+.coverage
+*.pyc
+__pycache__/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+venv/
+env/
+*.egg-info/
