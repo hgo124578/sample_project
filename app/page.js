@@ -27,6 +27,23 @@ export default function Home() {
               デモページへ（シャローローティング）→
             </Link>
           </div>
+          <div className="pt-4 border-t border-gray-300 mt-6">
+            <p className="text-sm text-gray-600 mb-3">rrweb 学習サンプル</p>
+            <div className="flex gap-3 justify-center">
+              <Link
+                href="/rrweb-record"
+                className="inline-block px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors"
+              >
+                画面操作を記録
+              </Link>
+              <Link
+                href="/rrweb-replay"
+                className="inline-block px-6 py-3 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors"
+              >
+                記録を再生
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </main>
