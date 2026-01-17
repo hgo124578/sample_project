@@ -27,6 +27,14 @@ export default function Home() {
               デモページへ（シャローローティング）→
             </Link>
           </div>
+          <div>
+            <Link
+              href="/performance-test"
+              className="inline-block px-6 py-3 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 transition-colors"
+            >
+              パフォーマンステスト →
+            </Link>
+          </div>
           <div className="pt-4 border-t border-gray-300 mt-6">
             <p className="text-sm text-gray-600 mb-3">rrweb 学習サンプル</p>
             <div className="flex gap-3 justify-center">
