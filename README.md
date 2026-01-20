@@ -127,3 +127,80 @@ rrweb（record and replay the web）は、Webページ上のユーザー操作�
 2. **emit関数**: 記録中にイベントがどのように発生するかを理解
 3. **再生の仕組み**: DOMの再構築とイベントの再現がどのように行われるか
 4. **実用例**: セッションリプレイツールやバグトラッキングツールへの応用
+
+'use client';
+
+import React, { useRef, useState } from 'react';
+import * as rrweb from 'rrweb';
+import type { eventWithTime } from '@rrweb/types';
+
+type RecorderStatus = 'idle' | 'recording' | 'stopped';
+
+export default function RrwebRecorder() {
+  const [status, setStatus] = useState<RecorderStatus>('idle');
+  const eventsRef = useRef<eventWithTime[]>([]);
+  const stopFnRef = useRef<null | (() => void)>(null);
+
+  const startRecording = () => {
+    if (status === 'recording') return;
+
+    // 前回分が残っていればクリア（必要なら残す設計にもできます）
+    eventsRef.current = [];
+
+    const stop = rrweb.record({
+      emit(event) {
+        eventsRef.current.push(event as eventWithTime);
+      },
+      // まずはデフォルトでOK。必要なら sampling や mask 等を後で足す
+    });
+
+    stopFnRef.current = stop;
+    setStatus('recording');
+  };
+
+  const stopRecording = () => {
+    if (status !== 'recording') return;
+
+    stopFnRef.current?.();
+    stopFnRef.current = null;
+    setStatus('stopped');
+
+    // 停止時にJSONとしてダウンロード（まずは保存方法として簡単）
+    const data = JSON.stringify(eventsRef.current);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `rrweb-session-${new Date().toISOString()}.json`;
+    a.click();
+
+    URL.revokeObjectURL(url);
+  };
+
+  const clear = () => {
+    if (status === 'recording') return;
+    eventsRef.current = [];
+    setStatus('idle');
+  };
+
+  return (
+    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+      <button onClick={startRecording} disabled={status === 'recording'}>
+        開始
+      </button>
+
+      <button onClick={stopRecording} disabled={status !== 'recording'}>
+        停止
+      </button>
+
+      <button onClick={clear} disabled={status === 'recording'}>
+        クリア
+      </button>
+
+      <span>
+        状態: <b>{status}</b> / events: <b>{eventsRef.current.length}</b>
+      </span>
+    </div>
+  );
+}
