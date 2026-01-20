@@ -140,7 +140,7 @@ export default function RrwebRecorder() {
   const [status, setStatus] = useState<RecorderStatus>('idle');
   const eventsRef = useRef<eventWithTime[]>([]);
   const stopFnRef = useRef<null | (() => void)>(null);
-
+const stopFnRef = useRef<ReturnType<typeof rrweb.record> | null>(null)
   const startRecording = () => {
     if (status === 'recording') return;
 
