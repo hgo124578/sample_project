@@ -204,3 +204,52 @@ const stopFnRef = useRef<ReturnType<typeof rrweb.record> | null>(null)
     </div>
   );
 }
+
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import Player from 'rrweb-player';
+import 'rrweb-player/dist/style.css';
+
+export default function RRWebPlayerPage() {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [events, setEvents] = useState<any[] | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current || !events) return;
+
+    // 前回のプレイヤーを消す（最小のやり方）
+    containerRef.current.innerHTML = '';
+
+    new Player({
+      target: containerRef.current,
+      props: {
+        events,
+        autoPlay: false,
+      },
+    });
+  }, [events]);
+
+  return (
+    <main style={{ padding: 24 }}>
+      <h1>rrweb player</h1>
+
+      <input
+        type="file"
+        accept="application/json"
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+
+          const text = await file.text();
+          setEvents(JSON.parse(text));
+
+          // 同じファイルを再選択できるように
+          e.currentTarget.value = '';
+        }}
+      />
+
+      <div style={{ marginTop: 16 }} ref={containerRef} />
+    </main>
+  );
+}
