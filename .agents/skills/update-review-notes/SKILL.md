@@ -7,82 +7,86 @@ description: Use when asked to record, update, or sync GitHub PR review comments
 
 ## Overview
 
-GitHubの全PRからレビューコメントを取得し、`docs/ai/review-notes.md` に追記する。差分取得方式で動作するため、2回目以降は新しいコメントのみを処理する。
+Fetch review comments from all GitHub PRs and append new lessons to `docs/ai/review-notes.md`. Uses incremental fetching — on subsequent runs, only new comments since the last fetch are processed.
 
 ## Prerequisites
 
-- `gh` CLI がインストールされ、GitHubにログインしていること
-- `gh auth status` で認証状態を確認できる
+- `gh` CLI installed and authenticated (`gh auth status` to verify)
 
 ## How to Use
 
-### Step 1: 設定を読む
+### Step 1: Read config
 
-`CLAUDE.md` または `AGENTS.md` 内に `<!-- ai-skills-config -->` ブロックがあれば、review-notesのパスを読み取る。なければデフォルト: `docs/ai/review-notes.md`
+Check `CLAUDE.md` or `AGENTS.md` for an `<!-- ai-skills-config -->` block and read the `review-notes` path. Default: `docs/ai/review-notes.md`
 
-### Step 2: リポジトリ情報を取得する
+```
+<!-- ai-skills-config -->
+review-notes: docs/review-history.md
+<!-- /ai-skills-config -->
+```
+
+### Step 2: Get repository info
 
 ```bash
 gh repo view --json owner,name
 ```
 
-SSH・HTTPS両形式のリモートURLに対応するため、`git remote get-url origin` のパースではなくこのコマンドを使う。
+Use this command (not `git remote get-url origin`) to handle both HTTPS and SSH remote URL formats.
 
-### Step 3: 全PR一覧を取得する
+### Step 3: Fetch all PRs
 
 ```bash
 gh api repos/{owner}/{repo}/pulls?state=all&per_page=100
 ```
 
-PRが100件を超える場合は `?page=2` などでページネーションして全件取得する。
+If the repo has more than 100 PRs, paginate using `?page=2`, etc., until all PRs are retrieved.
 
-### Step 4: メタデータを確認して差分取得する
+### Step 4: Incremental fetch per PR
 
-`review-notes.md` 末尾の `<!-- ai-review-notes-metadata ... -->` ブロックを読み、各PRの `last_fetched_at` を確認する。
+Read the `<!-- ai-review-notes-metadata ... -->` block at the end of `review-notes.md` and check `last_fetched_at` for each PR.
 
-各PRについて：
-- **未処理のPR**（メタデータにない）: 全コメントを取得対象
-- **処理済みのPR**（`last_fetched_at` がある）: それ以降に作成されたコメントのみ対象
+- **New PR** (not in metadata): fetch all comments
+- **Previously fetched PR** (has `last_fetched_at`): fetch only comments created after that timestamp
 
 ```bash
-# PRレビュー（Approve/Request changes等）
+# Review-level comments (Approve / Request changes / etc.)
 gh api repos/{owner}/{repo}/pulls/{number}/reviews
 
-# インラインコメント
+# Inline comments
 gh api repos/{owner}/{repo}/pulls/{number}/comments
 ```
 
-取得結果から以下を除外する：
-- `user.type === "Bot"` のコメント（自動レビューボット）
-- `created_at` が `last_fetched_at` 以前のコメント（処理済み）
+Exclude from results:
+- Comments where `user.type === "Bot"` (automated review bots)
+- Comments where `created_at` is on or before `last_fetched_at` (already processed)
 
-### Step 5: 新しい指摘がなければ終了する
+### Step 5: Exit early if nothing new
 
-全PRを処理した結果、新しいコメントが1件もなければ：
+If no new comments were found across all PRs:
 
-> ✅ 新しいレビュー指摘はありませんでした。
+> ✅ No new review notes found.
 
-### Step 6: 指摘を分類して追記する
+### Step 6: Classify and append
 
-新しいコメントを以下のカテゴリに分類し、`review-notes.md` の本文に追記する：
+Classify new comments into categories and append to the body of `review-notes.md`:
 
-- 型・型安全性
-- コンポーネント設計
-- 命名規則
-- その他
+- Type safety
+- Component design
+- Naming conventions
+- Other
 
-**重複判定:** 同じカテゴリ内で指摘の意図が同じものは新規エントリを作らず、既存エントリに例として追記する：
+**Deduplication rule:** If a new comment has the same intent as an existing entry in the same category, do not create a new entry — add it as an example under the existing one:
 
 ```markdown
-## 型・型安全性
-- 【指摘】Props に型定義がない場合は必ず TypeScript の interface/type を使う
-  - 例: PR#1 で `stopFnRef` の型が `any` になっていた
-  - 例: PR#3 で `props` が暗黙的に `any` になっていた  ← 追記
+## Type safety
+- [Note] Always use TypeScript interface/type for props — never implicit `any`
+  - Example: PR#1 — `stopFnRef` was typed as `any`, fixed to `MutableRefObject<(() => void) | null>`
+  - Example: PR#3 — `props` had implicit `any`  ← appended
 ```
 
-### Step 7: メタデータを更新する
+### Step 7: Update metadata
 
-`review-notes.md` 末尾の `<!-- ai-review-notes-metadata ... -->` ブロックを更新し、処理した全PRの `last_fetched_at` を現在時刻（ISO 8601形式）に更新する：
+Update the `<!-- ai-review-notes-metadata ... -->` block at the end of `review-notes.md` with the current timestamp (ISO 8601) for all processed PRs:
 
 ```
 <!-- ai-review-notes-metadata

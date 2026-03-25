@@ -7,18 +7,18 @@ description: Use when asked to review code, check a pull request, or review chan
 
 ## Overview
 
-レビュー依頼を受けたとき、以下を踏まえて構造化されたレビュー結果を出力する：
+When asked to review code, produce structured review output based on:
 
-1. 現在のブランチとベースブランチの差分（コミット済みのみ）
-2. プロジェクト規約（`docs/ai/conventions.md`）
-3. 過去のPRで受けたレビュー指摘（`docs/ai/review-notes.md`）
-4. 一般的なベストプラクティス
+1. Committed diff between current branch and base branch
+2. Project conventions (`docs/ai/conventions.md`)
+3. Past PR review lessons (`docs/ai/review-notes.md`)
+4. General best practices
 
 ## How to Use
 
-### Step 1: 設定を読む
+### Step 1: Read config
 
-`CLAUDE.md` または `AGENTS.md` 内に `<!-- ai-skills-config -->` ブロックがあれば、そこからパスとベースブランチを読み取る：
+Check `CLAUDE.md` or `AGENTS.md` for an `<!-- ai-skills-config -->` block:
 
 ```
 <!-- ai-skills-config -->
@@ -28,57 +28,57 @@ base-branch: develop
 <!-- /ai-skills-config -->
 ```
 
-ブロックがなければデフォルト：
+If no block is found, use defaults:
 - conventions: `docs/ai/conventions.md`
 - review-notes: `docs/ai/review-notes.md`
-- base-branch: 自動検出 → `main`
+- base-branch: auto-detect → `main`
 
-### Step 2: ベースブランチを特定する
+### Step 2: Identify base branch
 
-1. 設定ブロックに `base-branch` があればそれを使う
-2. なければ `git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null` で自動検出
-3. 取得できない場合は `main` をデフォルトとして使用
+1. Use `base-branch` from config if present
+2. Otherwise auto-detect: `git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null`
+3. Fall back to `main` if detection fails
 
-### Step 3: 差分を取得する
+### Step 3: Get diff
 
 ```bash
 git diff <base-branch>...HEAD
 ```
 
-差分が500行を超える場合は先に統計を表示し、ファイル単位でレビューするか確認する：
+If the diff exceeds 500 lines, show stats first and ask whether to review file-by-file or all at once:
 
 ```bash
 git diff --stat <base-branch>...HEAD
 ```
 
-> 差分が大きいです（XXX行）。ファイル単位でレビューしますか？それとも全体をまとめてレビューしますか？
+> Large diff (XXX lines). Review file-by-file or all at once?
 
-### Step 4: 規約・指摘ファイルを読む
+### Step 4: Read conventions and review notes
 
-- `conventions.md` を読む（存在しない場合は警告して続行）
-- `review-notes.md` を読む（存在しない場合は過去指摘なしとして続行）
+- Read `conventions.md` (warn and continue if missing)
+- Read `review-notes.md` (continue silently if missing)
 
-### Step 5: レビュー結果を出力する
+### Step 5: Output review results
 
-以下のフォーマットで出力する：
+Use this format:
 
 ```
-## コードレビュー結果
+## Code Review
 
-### 🔴 Critical（マージ前に必須対応）
-- [ファイル名:行番号] 指摘内容
+### 🔴 Critical (must fix before merge)
+- [filename:line] issue
 
-### 🟡 Important（強く推奨）
-- [ファイル名:行番号] 指摘内容
+### 🟡 Important (strongly recommended)
+- [filename:line] issue
 
-### 🔵 Suggestion（任意改善）
-- [ファイル名:行番号] 指摘内容
+### 🔵 Suggestion (optional improvement)
+- [filename:line] issue
 
-### ✅ 問題なし
-（指摘がない場合）
+### ✅ No issues
+(if nothing to report)
 ```
 
-**判定基準:**
-- 🔴 Critical: バグ・セキュリティ問題・ビルドが壊れる・規約の重大な違反
-- 🟡 Important: 規約違反・過去の指摘と同趣旨の問題・可読性に大きく影響
-- 🔵 Suggestion: より良くなる改善点（任意対応）
+**Severity criteria:**
+- 🔴 Critical: bugs, security issues, broken builds, major convention violations
+- 🟡 Important: convention violations, same issue as a past review note, significant readability problems
+- 🔵 Suggestion: improvements that would make the code better (optional)

@@ -7,17 +7,17 @@ description: Use when asked to write, implement, or modify code. Ensures impleme
 
 ## Overview
 
-実装依頼を受けたとき、以下の3つのインプットを踏まえてコードを書く：
+When asked to implement code, use these three inputs to guide the implementation:
 
-1. 一般的なベストプラクティス
-2. このプロジェクトの規約（`docs/ai/conventions.md`）
-3. 過去のPRで受けたレビュー指摘（`docs/ai/review-notes.md`）
+1. General best practices
+2. Project conventions (`docs/ai/conventions.md`)
+3. Past PR review lessons (`docs/ai/review-notes.md`)
 
 ## How to Use
 
-### Step 1: 設定を読む
+### Step 1: Read config
 
-`CLAUDE.md` または `AGENTS.md` 内に `<!-- ai-skills-config -->` ブロックがあれば、そこからパスを読み取る：
+Check `CLAUDE.md` or `AGENTS.md` for an `<!-- ai-skills-config -->` block and read path overrides from it:
 
 ```
 <!-- ai-skills-config -->
@@ -27,28 +27,28 @@ base-branch: develop
 <!-- /ai-skills-config -->
 ```
 
-ブロックがなければデフォルトパスを使用：
+If no block is found, use defaults:
 - conventions: `docs/ai/conventions.md`
 - review-notes: `docs/ai/review-notes.md`
 
-### Step 2: 規約ファイルを読む
+### Step 2: Read conventions file
 
-設定から特定したパスのファイルを読む。
+Read the file at the resolved path.
 
-ファイルが存在しない場合：
-> ⚠️ 規約ファイルが見つかりません（`docs/ai/conventions.md`）。ファイルを作成するか、CLAUDE.md でパスを指定してください。ベストプラクティスのみで続行します。
+If the file does not exist:
+> ⚠️ Conventions file not found (`docs/ai/conventions.md`). Create it or specify a path in CLAUDE.md. Proceeding with best practices only.
 
-### Step 3: レビュー指摘ファイルを読む
+### Step 3: Read review notes file
 
-設定から特定したパスのファイルを読む。ファイルが存在しない場合は過去指摘なしとして続行する（警告不要）。
+Read the file at the resolved path. If the file does not exist, continue silently with no past review notes.
 
-### Step 4: 関連する過去指摘を宣言する
+### Step 4: Declare relevant past review notes
 
-`review-notes.md` の内容が今回のタスクに関連する場合（例: 同種のコンポーネントを書く、同じライブラリを使う）、実装前に明示的に宣言する：
+If the content of `review-notes.md` is relevant to the current task (e.g., writing a similar component, using the same library), explicitly state this before implementing:
 
-> 📌 過去のレビューで以下の指摘があります。今回の実装で意識して対処します：
-> - [関連する指摘の内容]
+> 📌 Past review notes apply to this task. Addressing the following:
+> - [relevant note]
 
-### Step 5: 実装する
+### Step 5: Implement
 
-規約・ベストプラクティス・過去指摘を全て踏まえて実装する。
+Write the code with all of the following in mind: project conventions, general best practices, and past review lessons.
