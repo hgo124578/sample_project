@@ -99,16 +99,20 @@
 1. PR番号を特定する：
    - ユーザーがPR番号を明示した場合はそれを使用
    - 明示されていない場合は `gh pr view --json number` で現在のブランチに関連するPRを自動取得。取得できない場合はユーザーにPR番号を尋ねる
-2. リポジトリの owner/repo を `gh repo view --json owner,name` で取得する（HTTPS・SSH両形式のリモートURLに対応するためこの方法を使う）
-3. 以下のコマンドでレビューコメントを取得。取得結果から `user.type === "Bot"` のコメントは除外する：
+2. `review-notes.md` のメタデータセクションを読み、当該PR番号の最終取得日時（`last_fetched_at`）を確認する
+   - 初回実行の場合: 全コメントを取得対象とする
+   - 再実行の場合: `last_fetched_at` 以降に作成されたコメントのみを取得対象とする（差分取得）
+3. リポジトリの owner/repo を `gh repo view --json owner,name` で取得する（HTTPS・SSH両形式のリモートURLに対応するためこの方法を使う）
+4. 以下のコマンドでレビューコメントを取得。取得結果から `user.type === "Bot"` のコメントと、`created_at` が `last_fetched_at` 以前のものを除外する：
    ```bash
    # PRレビュー（Approve/Request changes等のコメント）
    gh api repos/{owner}/{repo}/pulls/{number}/reviews
    # インラインコメント
    gh api repos/{owner}/{repo}/pulls/{number}/comments
    ```
-4. 取得したコメントから指摘（Request changes / コメント）を抽出・要約・分類する
-5. `review-notes.md` に追記する。重複の判定基準：**同じ分類カテゴリ内で指摘の意図が同じもの**（例: 「型定義が不足」が既にある場合は新たな同種指摘をマージして記述を充実させる。別の例を追記するのはOK）
+5. 取得したコメントから指摘（Request changes / コメント）を抽出・要約・分類する。新しいコメントがなければ「新しい指摘はありませんでした」と報告して終了する
+6. `review-notes.md` の本文に追記する。重複の判定基準：**同じ分類カテゴリ内で指摘の意図が同じもの**（同種指摘はマージして記述を充実させる。別の例を追記するのはOK）
+7. `review-notes.md` のメタデータセクションを更新する（当該PRの `last_fetched_at` を現在時刻に更新）
 
 **目的:** 人間がレビューを受けた後、次回以降の再発を防ぐために指摘を蓄積する
 
@@ -184,6 +188,14 @@ Skillsは `<!-- ai-skills-config -->` と `<!-- /ai-skills-config -->` で囲ま
 
 ## その他
 - （指摘が蓄積されたらここに追記）
+
+---
+<!-- ai-review-notes-metadata
+pr_1:
+  last_fetched_at: "2026-03-25T10:00:00Z"
+pr_2:
+  last_fetched_at: "2026-03-25T15:30:00Z"
+-->
 ```
 
 **フォーマット規則:**
