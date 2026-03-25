@@ -1,18 +1,32 @@
 # プロジェクト規約
 
 > このファイルはAIエージェント（coding / code-review スキル）がコード品質を保つための規約を記録します。
-> 各セクションの（例）を削除し、実際のプロジェクト規約で埋めてください。
+> 各セクションの内容は実際のプロジェクトの状況に合わせて更新してください。
 
 ## コーディング規約
-- （例）関数はアロー関数で統一する
-- （例）型定義は必ずTypeScriptの型/interfaceを使う
+
+- TypeScript（`.tsx`）と JavaScript（`.js`）が混在している。新規ファイルはTypeScript（`.tsx`）を使用する
+- TypeScriptの strict モードはオフ（`tsconfig.json`）だが、型定義は積極的に付ける
+- `any` 型の使用は避ける。特に `useRef` の型引数は明示する（例: `useRef<(() => void) | null>(null)`）
+- コメントは日本語で書く
+- ESLintは `next/core-web-vitals` に準拠する
 
 ## ファイル・ディレクトリ命名規則
-- （例）コンポーネントはPascalCase
-- （例）ユーティリティはcamelCase
+
+- ページコンポーネントのファイル名は `page.js` / `page.tsx`（App Routerの規約）
+- ディレクトリ名はkebab-case（例: `rrweb-record`, `performance-test`）
+- コンポーネント関数名はPascalCase（例: `RrwebRecordPage`, `Home`）
+- ユーティリティ関数名はcamelCase
 
 ## コンポーネント設計
-- （例）Server ComponentとClient Componentを明示的に分離する
+
+- App Router（`app/` ディレクトリ）を使用する
+- ページはそれぞれのディレクトリに `page.js`/`page.tsx` として配置する
+- インタラクティブな操作（useState, useRef, イベントハンドラ等）を含むコンポーネントには先頭に `'use client'` ディレクティブを付ける
+- Server Component（ディレクティブなし）をデフォルトとし、必要な場合のみ Client Component にする
+- スタイリングはTailwind CSSのclassNameで行う（外部CSSファイルは `globals.css` のみ）
 
 ## その他
-- （例）コメントは日本語で書く
+
+- `metadata` オブジェクトのエクスポートはServer Componentでのみ行う
+- UIテキストは日本語で書く
