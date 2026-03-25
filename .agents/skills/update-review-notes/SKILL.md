@@ -48,17 +48,30 @@ Read the `<!-- ai-review-notes-metadata ... -->` block at the end of `review-not
 - **New PR** (not in metadata): fetch all comments
 - **Previously fetched PR** (has `last_fetched_at`): fetch only comments created after that timestamp
 
+For each PR that has new comments, fetch the following:
+
 ```bash
+# Full PR diff — provides cross-file context for understanding architectural/consistency comments
+gh pr diff {number}
+
+# PR title and description — provides intent and background
+gh pr view {number} --json title,body
+
 # Review-level comments (Approve / Request changes / etc.)
 gh api repos/{owner}/{repo}/pulls/{number}/reviews
 
-# Inline comments
+# Inline comments — each includes diff_hunk (the code snippet at the commented line)
 gh api repos/{owner}/{repo}/pulls/{number}/comments
 ```
 
 Exclude from results:
 - Comments where `user.type === "Bot"` (automated review bots)
 - Comments where `created_at` is on or before `last_fetched_at` (already processed)
+
+When interpreting review comments, use all available context together:
+- `diff_hunk` for the specific code being commented on
+- The full PR diff for cross-file and consistency issues
+- The PR title/description for the intent behind the changes
 
 ### Step 5: Exit early if nothing new
 
