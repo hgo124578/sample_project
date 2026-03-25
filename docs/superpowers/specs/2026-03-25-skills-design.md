@@ -96,23 +96,21 @@
 「レビュー指摘を記録して」「PRのレビューを更新して」など、レビュー指摘の記録を依頼されたとき
 
 **動作フロー:**
-1. PR番号を特定する：
-   - ユーザーがPR番号を明示した場合はそれを使用
-   - 明示されていない場合は `gh pr view --json number` で現在のブランチに関連するPRを自動取得。取得できない場合はユーザーにPR番号を尋ねる
-2. `review-notes.md` のメタデータセクションを読み、当該PR番号の最終取得日時（`last_fetched_at`）を確認する
-   - 初回実行の場合: 全コメントを取得対象とする
-   - 再実行の場合: `last_fetched_at` 以降に作成されたコメントのみを取得対象とする（差分取得）
-3. リポジトリの owner/repo を `gh repo view --json owner,name` で取得する（HTTPS・SSH両形式のリモートURLに対応するためこの方法を使う）
-4. 以下のコマンドでレビューコメントを取得。取得結果から `user.type === "Bot"` のコメントと、`created_at` が `last_fetched_at` 以前のものを除外する：
+1. リポジトリの owner/repo を `gh repo view --json owner,name` で取得する（HTTPS・SSH両形式に対応）
+2. `gh api repos/{owner}/{repo}/pulls?state=all&per_page=100` でリポジトリの全PR一覧を取得する
+3. `review-notes.md` のメタデータセクションを読み、各PRの `last_fetched_at` を確認する
+   - 未処理のPR: 全コメントを取得対象とする
+   - 処理済みのPR: `last_fetched_at` 以降に作成されたコメントのみを取得対象とする（差分取得）
+4. 各PRに対して以下のコマンドでレビューコメントを取得。`user.type === "Bot"` のコメントと `last_fetched_at` 以前のものを除外する：
    ```bash
-   # PRレビュー（Approve/Request changes等のコメント）
+   # PRレビュー（Approve/Request changes等）
    gh api repos/{owner}/{repo}/pulls/{number}/reviews
    # インラインコメント
    gh api repos/{owner}/{repo}/pulls/{number}/comments
    ```
-5. 取得したコメントから指摘（Request changes / コメント）を抽出・要約・分類する。新しいコメントがなければ「新しい指摘はありませんでした」と報告して終了する
+5. 全PRから収集した新しいコメントを抽出・要約・分類する。新しいコメントが1件もなければ「新しい指摘はありませんでした」と報告して終了する
 6. `review-notes.md` の本文に追記する。重複の判定基準：**同じ分類カテゴリ内で指摘の意図が同じもの**（同種指摘はマージして記述を充実させる。別の例を追記するのはOK）
-7. `review-notes.md` のメタデータセクションを更新する（当該PRの `last_fetched_at` を現在時刻に更新）
+7. `review-notes.md` のメタデータセクションを全PRの `last_fetched_at` を現在時刻に更新する
 
 **目的:** 人間がレビューを受けた後、次回以降の再発を防ぐために指摘を蓄積する
 
