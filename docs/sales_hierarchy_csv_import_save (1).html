@@ -1,0 +1,874 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>営業成績 階層切替表</title>
+<style>
+  :root {
+    --bg: #f6f6f3;
+    --panel: #fff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --line: #d7d7d0;
+    --line-dark: #b8b8ad;
+    --header: #ecece7;
+    --subheader: #f8f8f5;
+    --level1: #e7e7df;
+    --level2: #f1f1ec;
+    --total: #dfdfd6;
+    --hover: #fafaf7;
+    --selected: #222;
+    --selectedText: #fff;
+    --error: #9f1239;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--text);
+    background: var(--bg);
+  }
+
+  .wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 18px 24px 24px;
+  }
+
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+
+  .toolbar-left {
+    display: grid;
+    gap: 8px;
+  }
+
+  .control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+
+  .label {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  button, .file-button {
+    appearance: none;
+    border: 1px solid var(--line-dark);
+    background: #fff;
+    color: var(--text);
+    border-radius: 999px;
+    padding: 7px 11px;
+    font-size: 13px;
+    cursor: pointer;
+    line-height: 1.2;
+  }
+
+  button.active {
+    background: var(--selected);
+    color: var(--selectedText);
+    border-color: var(--selected);
+  }
+
+  button:hover, .file-button:hover {
+    background: var(--hover);
+  }
+
+  button.active:hover {
+    background: var(--selected);
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+
+  select {
+    border: 1px solid var(--line-dark);
+    background: #fff;
+    color: var(--text);
+    border-radius: 10px;
+    padding: 7px 10px;
+    font-size: 13px;
+  }
+
+  .range-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .range-separator {
+    color: var(--muted);
+  }
+
+  .status {
+    color: var(--muted);
+    font-size: 12px;
+    min-height: 18px;
+  }
+
+  .status.error {
+    color: var(--error);
+    font-weight: 700;
+  }
+
+  .table-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .table-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 14px;
+    background: var(--subheader);
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .table-title strong {
+    color: var(--text);
+    font-size: 15px;
+  }
+
+  .table-wrap {
+    overflow: auto;
+    max-height: 78vh;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 760px;
+    font-size: 13px;
+  }
+
+  th, td {
+    padding: 8px 10px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  th:last-child, td:last-child { border-right: 0; }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--header);
+    border-bottom: 1px solid var(--line-dark);
+    font-weight: 700;
+  }
+
+  .row-head {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    text-align: left;
+    background: #fff;
+    min-width: 260px;
+    font-weight: 500;
+  }
+
+  thead .row-head {
+    z-index: 6;
+    background: var(--header);
+  }
+
+  tbody tr:hover td,
+  tbody tr:hover .row-head {
+    background: var(--hover);
+  }
+
+  .level1-row td,
+  .level1-row .row-head {
+    background: var(--level1);
+    font-weight: 900;
+    border-top: 1px solid var(--line-dark);
+  }
+
+  .level2-row td,
+  .level2-row .row-head {
+    background: var(--level2);
+    font-weight: 750;
+  }
+
+  .level3-row .row-head {
+    padding-left: 48px;
+  }
+
+  .level2-row .row-head {
+    padding-left: 24px;
+  }
+
+  .grand-total td,
+  .grand-total .row-head {
+    background: var(--total);
+    font-weight: 900;
+    border-top: 2px solid var(--line-dark);
+  }
+
+  .target-row td,
+  .target-row .row-head {
+    background: #f7f7f4;
+    color: #374151;
+    font-weight: 800;
+  }
+
+  .target-row.first-target td,
+  .target-row.first-target .row-head {
+    border-top: 2px solid var(--line-dark);
+  }
+
+  .toggle {
+    display: inline-block;
+    width: 20px;
+    color: var(--muted);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .collapsed {
+    display: none;
+  }
+
+  .sub-label {
+    color: var(--muted);
+    font-weight: 600;
+    margin-left: 6px;
+    font-size: 12px;
+  }
+
+  .unit {
+    padding: 9px 14px 12px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  @media (max-width: 860px) {
+    .wrap { padding: 14px; }
+    table { min-width: 720px; }
+    .toolbar { flex-direction: column; }
+  }
+
+  @media print {
+    body { background: #fff; }
+    .wrap { max-width: none; padding: 0; }
+    .toolbar { display: none; }
+    .table-card { border: none; }
+    .table-wrap { max-height: none; overflow: visible; }
+    thead th, .row-head { position: static; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <div class="control">
+        <span class="label">行の並び順</span>
+        <button class="order active" data-order="monthTeam">月 → チーム → 個人</button>
+        <button class="order" data-order="teamMonth">チーム → 月 → 個人</button>
+        <button class="order" data-order="personMonth">個人 → 月</button>
+      </div>
+
+      <div class="filters">
+        <span class="label">月フィルター</span>
+        <div class="range-filter">
+          <select id="fromMonth" aria-label="開始月"></select>
+          <span class="range-separator">〜</span>
+          <select id="toMonth" aria-label="終了月"></select>
+        </div>
+      </div>
+
+      <div class="filters">
+        <span class="label">データ</span>
+        <label class="file-button" for="csvInput">CSV読み込み</label>
+        <input id="csvInput" type="file" accept=".csv,text/csv" />
+        <button type="button" id="saveHtml">HTML保存</button>
+        <span id="csvStatus" class="status">サンプルデータを表示中</span>
+      </div>
+    </div>
+
+    <div class="control">
+      <button id="expandAll">すべて展開</button>
+      <button id="collapsePeople">すべて閉じる</button>
+    </div>
+  </div>
+
+  <section class="table-card">
+    <div class="table-title">
+      <strong id="title">月 → チーム → 個人 / 全期間</strong>
+    </div>
+    <div class="table-wrap">
+      <table id="reportTable"></table>
+    </div>
+    <div class="unit">単位：千円。利益率は、各行の 利益 ÷ 売上 で算出。目標行は月フィルターに関係なく固定表示。</div>
+  </section>
+</div>
+
+<script>
+const DEFAULT_DATA = [{"team": "Alpha", "person": "田中", "month": "2026-04", "revenue": 5200, "expense": 3172}, {"team": "Alpha", "person": "田中", "month": "2026-05", "revenue": 5450, "expense": 3324}, {"team": "Alpha", "person": "田中", "month": "2026-06", "revenue": 5600, "expense": 3416}, {"team": "Alpha", "person": "田中", "month": "2026-07", "revenue": 5750, "expense": 3508}, {"team": "Alpha", "person": "田中", "month": "2026-08", "revenue": 5900, "expense": 3599}, {"team": "Alpha", "person": "田中", "month": "2026-09", "revenue": 6100, "expense": 3721}, {"team": "Alpha", "person": "田中", "month": "2026-10", "revenue": 6250, "expense": 3850}, {"team": "Alpha", "person": "田中", "month": "2026-11", "revenue": 6300, "expense": 3881}, {"team": "Alpha", "person": "田中", "month": "2026-12", "revenue": 6500, "expense": 4004}, {"team": "Alpha", "person": "田中", "month": "2027-01", "revenue": 6600, "expense": 4066}, {"team": "Alpha", "person": "田中", "month": "2027-02", "revenue": 6700, "expense": 4127}, {"team": "Alpha", "person": "田中", "month": "2027-03", "revenue": 6900, "expense": 4250}, {"team": "Alpha", "person": "佐藤", "month": "2026-04", "revenue": 4800, "expense": 2784}, {"team": "Alpha", "person": "佐藤", "month": "2026-05", "revenue": 5000, "expense": 2900}, {"team": "Alpha", "person": "佐藤", "month": "2026-06", "revenue": 5150, "expense": 2987}, {"team": "Alpha", "person": "佐藤", "month": "2026-07", "revenue": 5250, "expense": 3045}, {"team": "Alpha", "person": "佐藤", "month": "2026-08", "revenue": 5400, "expense": 3132}, {"team": "Alpha", "person": "佐藤", "month": "2026-09", "revenue": 5550, "expense": 3219}, {"team": "Alpha", "person": "佐藤", "month": "2026-10", "revenue": 5700, "expense": 3340}, {"team": "Alpha", "person": "佐藤", "month": "2026-11", "revenue": 5850, "expense": 3428}, {"team": "Alpha", "person": "佐藤", "month": "2026-12", "revenue": 5950, "expense": 3487}, {"team": "Alpha", "person": "佐藤", "month": "2027-01", "revenue": 6050, "expense": 3545}, {"team": "Alpha", "person": "佐藤", "month": "2027-02", "revenue": 6150, "expense": 3604}, {"team": "Alpha", "person": "佐藤", "month": "2027-03", "revenue": 6300, "expense": 3692}, {"team": "Alpha", "person": "鈴木", "month": "2026-04", "revenue": 4300, "expense": 2709}, {"team": "Alpha", "person": "鈴木", "month": "2026-05", "revenue": 4450, "expense": 2804}, {"team": "Alpha", "person": "鈴木", "month": "2026-06", "revenue": 4600, "expense": 2898}, {"team": "Alpha", "person": "鈴木", "month": "2026-07", "revenue": 4700, "expense": 2961}, {"team": "Alpha", "person": "鈴木", "month": "2026-08", "revenue": 4850, "expense": 3056}, {"team": "Alpha", "person": "鈴木", "month": "2026-09", "revenue": 5000, "expense": 3150}, {"team": "Alpha", "person": "鈴木", "month": "2026-10", "revenue": 5100, "expense": 3244}, {"team": "Alpha", "person": "鈴木", "month": "2026-11", "revenue": 5250, "expense": 3339}, {"team": "Alpha", "person": "鈴木", "month": "2026-12", "revenue": 5350, "expense": 3403}, {"team": "Alpha", "person": "鈴木", "month": "2027-01", "revenue": 5450, "expense": 3466}, {"team": "Alpha", "person": "鈴木", "month": "2027-02", "revenue": 5600, "expense": 3562}, {"team": "Alpha", "person": "鈴木", "month": "2027-03", "revenue": 5750, "expense": 3657}, {"team": "Beta", "person": "高橋", "month": "2026-04", "revenue": 6100, "expense": 4026}, {"team": "Beta", "person": "高橋", "month": "2026-05", "revenue": 6250, "expense": 4125}, {"team": "Beta", "person": "高橋", "month": "2026-06", "revenue": 6400, "expense": 4224}, {"team": "Beta", "person": "高橋", "month": "2026-07", "revenue": 6500, "expense": 4290}, {"team": "Beta", "person": "高橋", "month": "2026-08", "revenue": 6650, "expense": 4389}, {"team": "Beta", "person": "高橋", "month": "2026-09", "revenue": 6800, "expense": 4488}, {"team": "Beta", "person": "高橋", "month": "2026-10", "revenue": 7000, "expense": 4662}, {"team": "Beta", "person": "高橋", "month": "2026-11", "revenue": 7150, "expense": 4762}, {"team": "Beta", "person": "高橋", "month": "2026-12", "revenue": 7300, "expense": 4862}, {"team": "Beta", "person": "高橋", "month": "2027-01", "revenue": 7450, "expense": 4962}, {"team": "Beta", "person": "高橋", "month": "2027-02", "revenue": 7600, "expense": 5062}, {"team": "Beta", "person": "高橋", "month": "2027-03", "revenue": 7800, "expense": 5195}, {"team": "Beta", "person": "伊藤", "month": "2026-04", "revenue": 3900, "expense": 2223}, {"team": "Beta", "person": "伊藤", "month": "2026-05", "revenue": 4050, "expense": 2308}, {"team": "Beta", "person": "伊藤", "month": "2026-06", "revenue": 4200, "expense": 2394}, {"team": "Beta", "person": "伊藤", "month": "2026-07", "revenue": 4350, "expense": 2480}, {"team": "Beta", "person": "伊藤", "month": "2026-08", "revenue": 4450, "expense": 2536}, {"team": "Beta", "person": "伊藤", "month": "2026-09", "revenue": 4600, "expense": 2622}, {"team": "Beta", "person": "伊藤", "month": "2026-10", "revenue": 4750, "expense": 2736}, {"team": "Beta", "person": "伊藤", "month": "2026-11", "revenue": 4850, "expense": 2794}, {"team": "Beta", "person": "伊藤", "month": "2026-12", "revenue": 5000, "expense": 2880}, {"team": "Beta", "person": "伊藤", "month": "2027-01", "revenue": 5100, "expense": 2938}, {"team": "Beta", "person": "伊藤", "month": "2027-02", "revenue": 5250, "expense": 3024}, {"team": "Beta", "person": "伊藤", "month": "2027-03", "revenue": 5400, "expense": 3110}, {"team": "Beta", "person": "渡辺", "month": "2026-04", "revenue": 4500, "expense": 2700}, {"team": "Beta", "person": "渡辺", "month": "2026-05", "revenue": 4650, "expense": 2790}, {"team": "Beta", "person": "渡辺", "month": "2026-06", "revenue": 4800, "expense": 2880}, {"team": "Beta", "person": "渡辺", "month": "2026-07", "revenue": 4900, "expense": 2940}, {"team": "Beta", "person": "渡辺", "month": "2026-08", "revenue": 5050, "expense": 3030}, {"team": "Beta", "person": "渡辺", "month": "2026-09", "revenue": 5200, "expense": 3120}, {"team": "Beta", "person": "渡辺", "month": "2026-10", "revenue": 5350, "expense": 3242}, {"team": "Beta", "person": "渡辺", "month": "2026-11", "revenue": 5500, "expense": 3333}, {"team": "Beta", "person": "渡辺", "month": "2026-12", "revenue": 5650, "expense": 3424}, {"team": "Beta", "person": "渡辺", "month": "2027-01", "revenue": 5750, "expense": 3484}, {"team": "Beta", "person": "渡辺", "month": "2027-02", "revenue": 5900, "expense": 3575}, {"team": "Beta", "person": "渡辺", "month": "2027-03", "revenue": 6050, "expense": 3666}, {"team": "Gamma", "person": "山本", "month": "2026-04", "revenue": 5700, "expense": 3534}, {"team": "Gamma", "person": "山本", "month": "2026-05", "revenue": 5850, "expense": 3627}, {"team": "Gamma", "person": "山本", "month": "2026-06", "revenue": 6000, "expense": 3720}, {"team": "Gamma", "person": "山本", "month": "2026-07", "revenue": 6150, "expense": 3813}, {"team": "Gamma", "person": "山本", "month": "2026-08", "revenue": 6300, "expense": 3906}, {"team": "Gamma", "person": "山本", "month": "2026-09", "revenue": 6450, "expense": 3999}, {"team": "Gamma", "person": "山本", "month": "2026-10", "revenue": 6600, "expense": 4132}, {"team": "Gamma", "person": "山本", "month": "2026-11", "revenue": 6750, "expense": 4226}, {"team": "Gamma", "person": "山本", "month": "2026-12", "revenue": 6900, "expense": 4319}, {"team": "Gamma", "person": "山本", "month": "2027-01", "revenue": 7050, "expense": 4413}, {"team": "Gamma", "person": "山本", "month": "2027-02", "revenue": 7200, "expense": 4507}, {"team": "Gamma", "person": "山本", "month": "2027-03", "revenue": 7350, "expense": 4601}, {"team": "Gamma", "person": "中村", "month": "2026-04", "revenue": 4100, "expense": 2419}, {"team": "Gamma", "person": "中村", "month": "2026-05", "revenue": 4250, "expense": 2508}, {"team": "Gamma", "person": "中村", "month": "2026-06", "revenue": 4350, "expense": 2566}, {"team": "Gamma", "person": "中村", "month": "2026-07", "revenue": 4450, "expense": 2626}, {"team": "Gamma", "person": "中村", "month": "2026-08", "revenue": 4550, "expense": 2684}, {"team": "Gamma", "person": "中村", "month": "2026-09", "revenue": 4700, "expense": 2773}, {"team": "Gamma", "person": "中村", "month": "2026-10", "revenue": 4800, "expense": 2861}, {"team": "Gamma", "person": "中村", "month": "2026-11", "revenue": 4950, "expense": 2950}, {"team": "Gamma", "person": "中村", "month": "2026-12", "revenue": 5050, "expense": 3010}, {"team": "Gamma", "person": "中村", "month": "2027-01", "revenue": 5150, "expense": 3069}, {"team": "Gamma", "person": "中村", "month": "2027-02", "revenue": 5300, "expense": 3159}, {"team": "Gamma", "person": "中村", "month": "2027-03", "revenue": 5450, "expense": 3248}, {"team": "Gamma", "person": "小林", "month": "2026-04", "revenue": 3600, "expense": 2016}, {"team": "Gamma", "person": "小林", "month": "2026-05", "revenue": 3750, "expense": 2100}, {"team": "Gamma", "person": "小林", "month": "2026-06", "revenue": 3900, "expense": 2184}, {"team": "Gamma", "person": "小林", "month": "2026-07", "revenue": 4000, "expense": 2240}, {"team": "Gamma", "person": "小林", "month": "2026-08", "revenue": 4150, "expense": 2324}, {"team": "Gamma", "person": "小林", "month": "2026-09", "revenue": 4250, "expense": 2380}, {"team": "Gamma", "person": "小林", "month": "2026-10", "revenue": 4400, "expense": 2490}, {"team": "Gamma", "person": "小林", "month": "2026-11", "revenue": 4550, "expense": 2575}, {"team": "Gamma", "person": "小林", "month": "2026-12", "revenue": 4650, "expense": 2632}, {"team": "Gamma", "person": "小林", "month": "2027-01", "revenue": 4750, "expense": 2689}, {"team": "Gamma", "person": "小林", "month": "2027-02", "revenue": 4900, "expense": 2773}, {"team": "Gamma", "person": "小林", "month": "2027-03", "revenue": 5050, "expense": 2858}];
+const DEFAULT_TARGETS = [{"label": "上期目標", "revenue": 168000, "expense": 101000}, {"label": "下期目標", "revenue": 372000, "expense": 225000}, {"label": "通期目標", "revenue": 540000, "expense": 326000}];
+
+let DATA = structuredClone(DEFAULT_DATA);
+let TARGETS = structuredClone(DEFAULT_TARGETS);
+let orderMode = "monthTeam";
+let fromMonth = "";
+let toMonth = "";
+let selectedMonths = new Set();
+
+function unique(list) {
+  return [...new Set(list)];
+}
+
+function monthLabel(month) {
+  if (!month) return "";
+  const m = Number(String(month).slice(5, 7));
+  return Number.isFinite(m) ? `${m}月` : month;
+}
+
+function monthSortKey(month) {
+  return String(month);
+}
+
+function getMonths() {
+  return unique(DATA.map(d => d.month)).sort((a, b) => monthSortKey(a).localeCompare(monthSortKey(b)))
+    .map(month => ({ month, label: monthLabel(month) }));
+}
+
+function getTeams() {
+  return unique(DATA.map(d => d.team)).filter(Boolean);
+}
+
+function getPeopleByTeam() {
+  const result = {};
+  for (const team of getTeams()) {
+    result[team] = unique(DATA.filter(d => d.team === team).map(d => d.person)).filter(Boolean);
+  }
+  return result;
+}
+
+function updateMonthSelectors(preserve = true) {
+  const months = getMonths();
+  const from = document.getElementById("fromMonth");
+  const to = document.getElementById("toMonth");
+
+  const currentFrom = preserve ? from.value : "";
+  const currentTo = preserve ? to.value : "";
+
+  from.innerHTML = months.map(m => `<option value="${m.month}">${m.label}</option>`).join("");
+  to.innerHTML = months.map(m => `<option value="${m.month}">${m.label}</option>`).join("");
+
+  fromMonth = months.some(m => m.month === currentFrom) ? currentFrom : months[0]?.month || "";
+  toMonth = months.some(m => m.month === currentTo) ? currentTo : months[months.length - 1]?.month || "";
+
+  from.value = fromMonth;
+  to.value = toMonth;
+}
+
+function syncSelectedMonthsFromRange() {
+  const months = getMonths();
+  const fromIndex = months.findIndex(m => m.month === fromMonth);
+  const toIndex = months.findIndex(m => m.month === toMonth);
+  if (fromIndex < 0 || toIndex < 0) {
+    selectedMonths = new Set();
+    return;
+  }
+  const start = Math.min(fromIndex, toIndex);
+  const end = Math.max(fromIndex, toIndex);
+  selectedMonths = new Set(months.slice(start, end + 1).map(m => m.month));
+}
+
+function visibleMonths() {
+  syncSelectedMonthsFromRange();
+  return getMonths().filter(m => selectedMonths.has(m.month));
+}
+
+function visibleData() {
+  syncSelectedMonthsFromRange();
+  return DATA.filter(d => selectedMonths.has(d.month));
+}
+
+function monthFilterLabel() {
+  const allMonths = getMonths();
+  const selected = visibleMonths();
+  if (selected.length === allMonths.length) return "全期間";
+  if (selected.length === 0) return "月未選択";
+  if (selected.length === 1) return selected[0].label;
+  return `${selected[0].label}〜${selected[selected.length - 1].label}`;
+}
+
+function summarize(rows) {
+  const revenue = rows.reduce((s, d) => s + d.revenue, 0);
+  const expense = rows.reduce((s, d) => s + d.expense, 0);
+  const profit = revenue - expense;
+  const margin = revenue ? profit / revenue * 100 : 0;
+  return { revenue, expense, profit, margin };
+}
+
+function fmt(value, metric) {
+  if (metric === "margin") return value.toFixed(1) + "%";
+  return Math.round(value).toLocaleString("ja-JP");
+}
+
+function cells(rows) {
+  const s = summarize(rows);
+  return `
+    <td>${fmt(s.revenue, "revenue")}</td>
+    <td>${fmt(s.expense, "expense")}</td>
+    <td>${fmt(s.profit, "profit")}</td>
+    <td>${fmt(s.margin, "margin")}</td>
+  `;
+}
+
+function makeRow(label, rows, cls, attrs = "") {
+  return `<tr class="${cls}" ${attrs}>
+    <td class="row-head">${label}</td>
+    ${cells(rows)}
+  </tr>`;
+}
+
+function targetCells(target) {
+  const profit = target.revenue - target.expense;
+  const margin = target.revenue ? profit / target.revenue * 100 : 0;
+  return `
+    <td>${fmt(target.revenue, "revenue")}</td>
+    <td>${fmt(target.expense, "expense")}</td>
+    <td>${fmt(profit, "profit")}</td>
+    <td>${fmt(margin, "margin")}</td>
+  `;
+}
+
+function targetRows() {
+  return TARGETS.map((target, index) => `
+    <tr class="target-row ${index === 0 ? "first-target" : ""}">
+      <td class="row-head">${escapeHtml(target.label)}</td>
+      ${targetCells(target)}
+    </tr>
+  `).join("");
+}
+
+function header() {
+  return `
+    <thead>
+      <tr>
+        <th class="row-head">集計項目</th>
+        <th>売上</th>
+        <th>経費</th>
+        <th>利益</th>
+        <th>利益率</th>
+      </tr>
+    </thead>
+  `;
+}
+
+function buildMonthTeamRows() {
+  const rows = [];
+  const teamOrder = getTeams();
+  const peopleByTeam = getPeopleByTeam();
+
+  for (const m of visibleMonths()) {
+    const monthRows = visibleData().filter(d => d.month === m.month);
+    rows.push(makeRow(
+      `<span class="toggle" data-role="level1" data-level1="${m.month}">▾</span>${escapeHtml(m.label)}`,
+      monthRows,
+      "level1-row",
+      `data-level1="${escapeAttr(m.month)}"`
+    ));
+
+    for (const team of teamOrder) {
+      const teamRows = monthRows.filter(d => d.team === team);
+      if (teamRows.length === 0) continue;
+      rows.push(makeRow(
+        `<span class="toggle" data-role="level2" data-level1="${m.month}" data-level2="${escapeAttr(team)}">▾</span>${escapeHtml(team)}`,
+        teamRows,
+        "level2-row",
+        `data-level1="${escapeAttr(m.month)}" data-level2="${escapeAttr(team)}"`
+      ));
+
+      for (const person of peopleByTeam[team]) {
+        const personRows = monthRows.filter(d => d.person === person);
+        if (personRows.length === 0) continue;
+        rows.push(makeRow(
+          escapeHtml(person),
+          personRows,
+          "level3-row",
+          `data-level1="${escapeAttr(m.month)}" data-level2="${escapeAttr(team)}"`
+        ));
+      }
+    }
+  }
+  return rows;
+}
+
+function buildTeamMonthRows() {
+  const rows = [];
+  const teamOrder = getTeams();
+  const peopleByTeam = getPeopleByTeam();
+
+  for (const team of teamOrder) {
+    const teamRowsAll = visibleData().filter(d => d.team === team);
+    if (teamRowsAll.length === 0) continue;
+
+    rows.push(makeRow(
+      `<span class="toggle" data-role="level1" data-level1="${escapeAttr(team)}">▾</span>${escapeHtml(team)}`,
+      teamRowsAll,
+      "level1-row",
+      `data-level1="${escapeAttr(team)}"`
+    ));
+
+    for (const m of visibleMonths()) {
+      const monthTeamRows = visibleData().filter(d => d.team === team && d.month === m.month);
+      if (monthTeamRows.length === 0) continue;
+
+      rows.push(makeRow(
+        `<span class="toggle" data-role="level2" data-level1="${escapeAttr(team)}" data-level2="${m.month}">▾</span>${escapeHtml(m.label)}`,
+        monthTeamRows,
+        "level2-row",
+        `data-level1="${escapeAttr(team)}" data-level2="${escapeAttr(m.month)}"`
+      ));
+
+      for (const person of peopleByTeam[team]) {
+        const personRows = monthTeamRows.filter(d => d.person === person);
+        if (personRows.length === 0) continue;
+
+        rows.push(makeRow(
+          escapeHtml(person),
+          personRows,
+          "level3-row",
+          `data-level1="${escapeAttr(team)}" data-level2="${escapeAttr(m.month)}"`
+        ));
+      }
+    }
+  }
+  return rows;
+}
+
+function buildPersonMonthRows() {
+  const rows = [];
+  const peopleByTeam = getPeopleByTeam();
+
+  for (const team of getTeams()) {
+    for (const person of peopleByTeam[team]) {
+      const personRowsAll = visibleData().filter(d => d.person === person);
+      if (personRowsAll.length === 0) continue;
+
+      rows.push(makeRow(
+        `<span class="toggle" data-role="level1" data-level1="${escapeAttr(person)}">▾</span>${escapeHtml(person)}<span class="sub-label">${escapeHtml(team)}</span>`,
+        personRowsAll,
+        "level1-row",
+        `data-level1="${escapeAttr(person)}"`
+      ));
+
+      for (const m of visibleMonths()) {
+        const personMonthRows = visibleData().filter(d => d.person === person && d.month === m.month);
+        if (personMonthRows.length === 0) continue;
+
+        rows.push(makeRow(
+          escapeHtml(m.label),
+          personMonthRows,
+          "level2-row",
+          `data-level1="${escapeAttr(person)}" data-level2="${escapeAttr(m.month)}"`
+        ));
+      }
+    }
+  }
+  return rows;
+}
+
+function buildTable() {
+  const rows = orderMode === "monthTeam"
+    ? buildMonthTeamRows()
+    : orderMode === "teamMonth"
+      ? buildTeamMonthRows()
+      : buildPersonMonthRows();
+
+  rows.push(makeRow("総計", visibleData(), "grand-total"));
+
+  document.getElementById("reportTable").innerHTML = header() + `<tbody>${rows.join("")}${targetRows()}</tbody>`;
+
+  const orderTitle = orderMode === "monthTeam"
+    ? "月 → チーム → 個人"
+    : orderMode === "teamMonth"
+      ? "チーム → 月 → 個人"
+      : "個人 → 月";
+
+  document.getElementById("title").textContent = `${orderTitle} / ${monthFilterLabel()}`;
+}
+
+function setLevel2ChildrenVisibility(level1, level2, collapsed) {
+  document
+    .querySelectorAll(`tr.level3-row[data-level1="${cssEscape(level1)}"][data-level2="${cssEscape(level2)}"]`)
+    .forEach(r => r.classList.toggle("collapsed", collapsed));
+  const icon = document.querySelector(`.toggle[data-role="level2"][data-level1="${cssEscape(level1)}"][data-level2="${cssEscape(level2)}"]`);
+  if (icon) icon.textContent = collapsed ? "▸" : "▾";
+}
+
+function setLevel1ChildrenVisibility(level1, collapsed) {
+  document
+    .querySelectorAll(`tr.level2-row[data-level1="${cssEscape(level1)}"], tr.level3-row[data-level1="${cssEscape(level1)}"]`)
+    .forEach(r => r.classList.toggle("collapsed", collapsed));
+  const icon = document.querySelector(`.toggle[data-role="level1"][data-level1="${cssEscape(level1)}"]`);
+  if (icon) icon.textContent = collapsed ? "▸" : "▾";
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const next = text[i + 1];
+
+    if (char === '"' && inQuotes && next === '"') {
+      cell += '"';
+      i++;
+    } else if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === "," && !inQuotes) {
+      row.push(cell);
+      cell = "";
+    } else if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (char === "\r" && next === "\n") i++;
+      row.push(cell);
+      if (row.some(v => v.trim() !== "")) rows.push(row);
+      row = [];
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+
+  row.push(cell);
+  if (row.some(v => v.trim() !== "")) rows.push(row);
+  return rows;
+}
+
+function normalizeHeader(value) {
+  return String(value || "").trim().replace(/^\uFEFF/, "").toLowerCase();
+}
+
+function parseNumber(value) {
+  const cleaned = String(value || "").replace(/,/g, "").trim();
+  const num = Number(cleaned);
+  if (!Number.isFinite(num)) throw new Error(`数値として読めない値があります: ${value}`);
+  return num;
+}
+
+function findValue(rowObj, names) {
+  for (const name of names) {
+    if (rowObj[name] !== undefined) return rowObj[name];
+  }
+  return "";
+}
+
+function loadCsvText(text) {
+  const rows = parseCsv(text);
+  if (rows.length < 2) throw new Error("CSVにデータ行がありません。");
+
+  const headers = rows[0].map(normalizeHeader);
+  const dataRows = [];
+  const targetRowsCsv = [];
+
+  for (const rawRow of rows.slice(1)) {
+    const obj = Object.fromEntries(headers.map((h, i) => [h, rawRow[i] ?? ""]));
+
+    const type = String(findValue(obj, ["種別", "type", "kind"])).trim().toLowerCase();
+    const revenue = parseNumber(findValue(obj, ["売上", "revenue"]));
+    const expense = parseNumber(findValue(obj, ["経費", "expense", "cost"]));
+
+    if (type === "target" || type === "目標") {
+      const label = String(findValue(obj, ["目標名", "target", "targetlabel", "label"])).trim();
+      if (!label) throw new Error("target行には目標名が必要です。");
+      targetRowsCsv.push({ label, revenue, expense });
+      continue;
+    }
+
+    const team = String(findValue(obj, ["チーム", "team"])).trim();
+    const person = String(findValue(obj, ["個人", "person", "member", "name"])).trim();
+    const month = String(findValue(obj, ["月", "month", "年月"])).trim();
+
+    if (!team || !person || !month) {
+      throw new Error("data行には チーム・個人・月 が必要です。");
+    }
+
+    dataRows.push({ team, person, month, revenue, expense });
+  }
+
+  if (dataRows.length === 0) throw new Error("data行がありません。");
+
+  DATA = dataRows;
+  TARGETS = targetRowsCsv.length > 0 ? targetRowsCsv : structuredClone(DEFAULT_TARGETS);
+
+  updateMonthSelectors(false);
+  buildTable();
+
+  const status = document.getElementById("csvStatus");
+  status.textContent = `CSV読み込み済み：${dataRows.length}行`;
+  status.classList.remove("error");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value);
+}
+
+function cssEscape(value) {
+  if (window.CSS && CSS.escape) return CSS.escape(value);
+  return String(value).replace(/"/g, '\\$&');
+}
+
+function saveCurrentHtml() {
+  let source = document.documentElement.outerHTML;
+
+  const dataJson = JSON.stringify(DATA, null, 2)
+    .replaceAll("</script", "<\\/script");
+  const targetsJson = JSON.stringify(TARGETS, null, 2)
+    .replaceAll("</script", "<\\/script");
+
+  source = "<!doctype html>\n" + source;
+
+  source = source.replace(
+    /const DEFAULT_DATA = [\s\S]*?;\nconst DEFAULT_TARGETS = /,
+    `const DEFAULT_DATA = ${dataJson};\nconst DEFAULT_TARGETS = `
+  );
+
+  source = source.replace(
+    /const DEFAULT_TARGETS = [\s\S]*?;\n\nlet DATA = /,
+    `const DEFAULT_TARGETS = ${targetsJson};\n\nlet DATA = `
+  );
+
+  const blob = new Blob([source], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const today = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `sales_report_${today}.html`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+
+  const status = document.getElementById("csvStatus");
+  status.textContent = "取り込み後データを埋め込んだHTMLを保存しました";
+  status.classList.remove("error");
+}
+
+document.addEventListener("click", e => {
+  const target = e.target;
+  if (!target.classList.contains("toggle")) return;
+
+  const role = target.dataset.role;
+  const level1 = target.dataset.level1;
+  const level2 = target.dataset.level2;
+
+  if (role === "level1") {
+    const anyVisible = [...document.querySelectorAll(`tr.level2-row[data-level1="${cssEscape(level1)}"]`)]
+      .some(r => !r.classList.contains("collapsed"));
+    setLevel1ChildrenVisibility(level1, anyVisible);
+  }
+
+  if (role === "level2") {
+    const anyVisible = [...document.querySelectorAll(`tr.level3-row[data-level1="${cssEscape(level1)}"][data-level2="${cssEscape(level2)}"]`)]
+      .some(r => !r.classList.contains("collapsed"));
+    setLevel2ChildrenVisibility(level1, level2, anyVisible);
+  }
+});
+
+document.querySelectorAll(".order").forEach(button => {
+  button.addEventListener("click", () => {
+    orderMode = button.dataset.order;
+    document.querySelectorAll(".order").forEach(b => b.classList.toggle("active", b === button));
+    buildTable();
+  });
+});
+
+document.getElementById("fromMonth").addEventListener("change", e => {
+  fromMonth = e.target.value;
+  buildTable();
+});
+
+document.getElementById("toMonth").addEventListener("change", e => {
+  toMonth = e.target.value;
+  buildTable();
+});
+
+document.getElementById("saveHtml").addEventListener("click", saveCurrentHtml);
+
+document.getElementById("csvInput").addEventListener("change", async e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const status = document.getElementById("csvStatus");
+  try {
+    const text = await file.text();
+    loadCsvText(text);
+  } catch (err) {
+    status.textContent = err.message || "CSVの読み込みに失敗しました。";
+    status.classList.add("error");
+  } finally {
+    e.target.value = "";
+  }
+});
+
+document.getElementById("expandAll").addEventListener("click", () => {
+  document.querySelectorAll("tr.collapsed").forEach(r => r.classList.remove("collapsed"));
+  document.querySelectorAll(".toggle").forEach(t => t.textContent = "▾");
+});
+
+document.getElementById("collapsePeople").addEventListener("click", () => {
+  document.querySelectorAll("tr.level2-row, tr.level3-row").forEach(r => r.classList.add("collapsed"));
+  document.querySelectorAll('.toggle[data-role="level1"], .toggle[data-role="level2"]').forEach(t => t.textContent = "▸");
+});
+
+updateMonthSelectors(false);
+buildTable();
+</script>
+</body>
+</html>
