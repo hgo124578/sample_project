@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="QA Observabilityチームの紹介。仕事内容、開発スタイル、これからの挑戦を3ページに凝縮。">
+<title>QA Observability Team | チーム紹介</title>
+<style>
+:root{--navy:#122239;--night:#0f1d2e;--ink:#1b2a3d;--soft:#526478;--muted:#718294;--teal:#087f75;--mint:#84e4d2;--border:#dfe7ed;--paper:#f5f8fa;--shadow:0 16px 40px rgba(16,40,58,.08)}
+*{box-sizing:border-box} html{scroll-behavior:smooth;scroll-padding-top:69px} body{margin:0;background:#f3f7f9;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased} a{text-decoration:none;color:inherit} button{font:inherit;cursor:pointer} .skip{position:absolute;top:-100px;left:10px;z-index:30;background:#fff;padding:8px 12px}.skip:focus{top:6px}
+.site-header{position:sticky;top:0;z-index:12;background:rgba(255,255,255,.96);border-bottom:1px solid #dbe5ea;backdrop-filter:blur(16px)} .header-inner{max-width:1192px;margin:auto;padding:0 27px;height:66px;display:flex;align-items:center;justify-content:space-between;gap:18px} .brand{display:flex;align-items:center;gap:10px;white-space:nowrap;font-size:12px;font-weight:900;letter-spacing:.09em;color:#183045} .brand-mark{width:25px;height:25px;border:2px solid var(--teal);border-radius:8px;transform:rotate(-10deg);position:relative}.brand-mark:before,.brand-mark:after{content:"";position:absolute;width:6px;height:6px;border-radius:50%;background:var(--teal)}.brand-mark:before{top:3px;left:3px}.brand-mark:after{bottom:3px;right:3px}.nav{display:flex;align-items:center;gap:6px}.nav a{border-radius:99px;padding:7px 13px;white-space:nowrap;color:#607385;font-size:12px;font-weight:700}.nav a:hover,.nav a.active{background:#e8f6f2;color:#0b8476}.print-btn{background:#fff;border:1px solid #d7e3e9;color:#446070;padding:7px 12px;border-radius:100px;white-space:nowrap;font-size:11px;font-weight:800}.print-btn:hover{background:#edf8f5}
+.page{padding:48px 0 46px;min-height:calc(100vh - 66px);display:flex;align-items:center;scroll-margin-top:66px} .page-inner{width:min(1120px,calc(100% - 64px));margin:0 auto}.page-no{display:flex;gap:11px;align-items:center;color:var(--teal);font-size:11px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;margin-bottom:15px}.page-no:before{content:"";height:2px;width:21px;background:currentColor;border-radius:2px} h1,h2,h3,p{margin-top:0}h1,h2{font-size:clamp(32px,3.55vw,46px);letter-spacing:-.043em;line-height:1.35;margin-bottom:17px;font-weight:900}h2{font-size:clamp(29px,3.35vw,43px)} .lead{font-size:15px;line-height:1.86;max-width:840px;color:var(--soft);margin-bottom:0} .label{font-weight:900;letter-spacing:.1em;font-size:10px;color:#0b8a7c;text-transform:uppercase} .small-note{color:var(--muted);font-size:10px;line-height:1.65}
+/* PAGE 1 */
+.page-work{background:radial-gradient(ellipse at 98% 0%,rgba(46,177,157,.17),transparent 40%),radial-gradient(ellipse at 0% 95%,rgba(62,107,161,.19),transparent 42%),linear-gradient(145deg,#0f1c2e 2%,#152a3f 73%,#122d3d);color:#fff}.page-work .page-no{color:#8fe3d4}.page-work h1{max-width:900px}.page-work h1 em{font-style:normal;color:#8ae9d6}.page-work .lead{color:#c5d8e1;max-width:890px}.work-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px;margin-top:32px}.work-card{background:rgba(255,255,255,.055);border:1px solid rgba(190,230,234,.23);border-radius:18px;padding:24px 25px;min-height:180px}.work-card.team{border-color:rgba(114,232,207,.48);background:rgba(55,164,146,.12)}.work-card .label{color:#9bddcf}.work-card h3{font-size:21px;margin:8px 0 10px;letter-spacing:-.035em}.work-card p{color:#d2e1e9;font-size:14px;line-height:1.8;margin-bottom:0}.work-card strong{color:#fff}.work-divider{display:flex;align-items:center;gap:13px;margin:18px 0 20px;font-weight:800;font-size:12px;color:#9bdace}.work-divider:before,.work-divider:after{content:"";height:1px;background:rgba(167,219,217,.25);flex:1}.flow-caption{font-size:11px;color:#b9d3d9;letter-spacing:.025em;font-weight:800;margin:0 0 11px}.work-flow{display:flex;align-items:stretch;gap:8px;min-width:0}.flow-item{border:1px solid rgba(172,218,220,.25);background:rgba(38,68,88,.65);padding:13px 8px;border-radius:11px;flex:1;text-align:center;min-width:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:750;line-height:1.5}.flow-item.highlight{background:#72ddc7;color:#0b2e3a;border-color:#72ddc7}.flow-arrow{align-self:center;flex:none;color:#8bdcca;font-size:22px;font-weight:300}.work-bottom{margin-top:22px;padding:0 2px;font-size:13px;color:#b7d5dc;font-weight:650}.work-bottom strong{color:#fff}
+/* PAGE 2 */
+.page-culture{background:#fff}.page-culture .lead{max-width:960px}.culture-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}.culture-card{border:1px solid var(--border);background:#f8fafc;border-radius:16px;padding:18px 19px;min-height:143px}.culture-card .card-no{font-size:10px;font-weight:900;letter-spacing:.13em;color:#0b907e}.culture-card h3{font-size:18px;letter-spacing:-.035em;line-height:1.45;margin:8px 0}.culture-card p{font-size:12px;color:var(--soft);line-height:1.75;margin:0}.stack-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:25px 0 13px}.stack-top h3{font-size:17px;letter-spacing:-.025em;margin:0}.stack-top p{font-size:11px;color:var(--muted);margin:0}.stack-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.stack-group{border:1px solid #e1e9ed;border-radius:13px;padding:12px 13px;background:#fff;min-width:0}.stack-title{font-size:11px;font-weight:850;color:#476073;line-height:1.3;margin:0 0 8px}.tech-chips{display:flex;flex-wrap:wrap;gap:5px}.tech-chip{border:1px solid #d8e7e9;background:#eff5f6;color:#365364;font-size:10px;font-weight:780;border-radius:7px;padding:3px 7px;white-space:nowrap;line-height:1.65}.tech-chip--emphasis{border-color:#8bcec3;background:#e6f7f2;color:#0a776d}.stack-foot{font-size:10px;color:#748494;margin:11px 0 0}
+/* PAGE 3 */
+.page-future{background:radial-gradient(ellipse at 100% 0%,rgba(111,210,190,.12),transparent 42%),#f1f6f8}.page-future h2 em{font-style:normal;color:#078b7c}.future-grid{display:grid;grid-template-columns:1.01fr .99fr;gap:16px;margin-top:30px}.future-card{background:#152a3f;border-radius:19px;padding:27px 29px;color:#fff;min-height:306px;position:relative;overflow:hidden}.future-card:after{content:"✳";position:absolute;right:-14px;bottom:-78px;font-size:220px;color:rgba(130,230,207,.08);line-height:1;pointer-events:none}.future-card .label{color:#8fe0d1}.future-card h3{font-size:27px;letter-spacing:-.045em;line-height:1.45;margin:14px 0}.future-card p{font-size:14px;color:#d0e0e7;line-height:1.9;max-width:500px;margin-bottom:21px}.future-tag{display:inline-flex;align-items:center;border:1px solid rgba(122,229,207,.35);border-radius:40px;padding:5px 12px;color:#a4ebdb;font-size:11px;font-weight:750}.growth-card{background:#fff;border:1px solid #dbe6eb;border-radius:19px;padding:27px 29px;min-height:306px}.growth-card h3{font-size:20px;margin:12px 0 19px;letter-spacing:-.035em}.growth-list{display:grid;gap:13px}.growth-item{display:flex;gap:12px;align-items:flex-start}.growth-icon{background:#e6f7f2;color:#0c8578;border-radius:8px;font-size:15px;font-weight:900;flex:none;width:29px;height:29px;display:grid;place-items:center}.growth-item strong{font-size:14px;line-height:1.4}.growth-item p{font-size:12px;line-height:1.7;color:var(--soft);margin:2px 0 0}.closing{margin-top:20px;border:1px solid #bcded6;background:#e6f5f1;border-radius:15px;padding:20px 24px;display:flex;align-items:center;gap:25px;justify-content:space-between}.closing strong{display:block;font-size:21px;line-height:1.5;letter-spacing:-.035em;color:#115d59;margin-bottom:3px}.closing p{font-size:12px;color:#46695f;margin:0}.closing-arrow{font-size:42px;color:#0d8575;font-weight:300;line-height:1}.page-footer{margin-top:19px;color:#8395a4;font-weight:700;letter-spacing:.08em;font-size:9px;text-align:right}
+@media(max-width:880px){.nav{gap:0}.header-inner{padding:0 17px}.page{min-height:auto;padding:65px 0}.page-inner{width:min(100% - 34px,720px)}.work-grid,.future-grid{grid-template-columns:1fr}.work-card,.future-card,.growth-card{min-height:auto}.culture-cards{grid-template-columns:1fr}.culture-card{min-height:0}.stack-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.work-flow{flex-wrap:wrap}.flow-item{flex-basis:calc(33.33% - 14px)}.flow-arrow:nth-of-type(6){display:none}}
+@media(max-width:600px){.brand{font-size:10px}.site-header .brand-mark{width:21px;height:21px}.nav a{padding:6px 7px;font-size:10px}.header-inner{height:60px;gap:7px;padding:0 10px}.print-btn{display:none}.page{padding:52px 0 58px;scroll-margin-top:60px}.page-inner{width:calc(100% - 30px)}h1,h2{font-size:32px}.lead{font-size:14px}.work-grid{gap:11px;margin-top:25px}.work-card{padding:20px 18px}.work-card h3{font-size:19px}.work-card p{font-size:13px}.work-flow{display:flex;flex-direction:column;gap:5px}.flow-item{padding:10px 8px;width:100%}.flow-arrow:nth-of-type(6){display:block}.flow-arrow{font-size:16px;line-height:1;transform:rotate(90deg);align-self:center}.work-bottom{font-size:12px}.stack-grid{grid-template-columns:1fr}.stack-top{display:block}.stack-top p{margin-top:5px}.growth-card,.future-card{padding:23px 20px}.future-card h3{font-size:24px}.closing{align-items:start;padding:19px}.closing strong{font-size:18px}.closing-arrow{display:none}}
+@media print{
+  @page{size:A4 landscape;margin:0}
+  html,body{width:297mm;height:auto;scroll-behavior:auto!important;background:#fff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  .site-header,.skip{display:none!important}
+  .page{height:210mm;min-height:0;max-height:210mm;width:297mm;display:block;overflow:hidden;padding:23mm 17mm 10mm;break-after:page;page-break-after:always;margin:0;box-shadow:none}
+  .page:last-of-type{break-after:auto;page-break-after:auto}
+  .page-inner{width:100%;margin:0}
+  h1,h2{font-size:36px;margin-bottom:12px}.lead{font-size:13px;line-height:1.75}.page-no{margin-bottom:10px}.page-work .work-grid{margin-top:21px}.work-card{min-height:0;padding:21px 23px}.work-card p{font-size:12px}.work-divider{margin:14px 0 15px}.flow-item{padding:9px}.work-bottom{margin-top:18px}
+  .culture-cards{margin-top:20px;gap:11px}.culture-card{min-height:0;padding:16px 15px}.culture-card h3{font-size:16px}.culture-card p{font-size:11px}.stack-top{margin:18px 0 10px}.stack-grid{gap:8px}.stack-group{padding:10px 11px}.tech-chip{font-size:9px;padding:2px 6px}.stack-foot{margin-top:8px}
+  .future-grid{margin-top:21px}.future-card,.growth-card{min-height:0;padding:23px 26px}.future-card h3{font-size:24px;margin:11px 0}.future-card p{font-size:12px}.growth-card h3{font-size:18px;margin:9px 0 14px}.growth-list{gap:11px}.growth-item p{font-size:11px}.closing{margin-top:17px;padding:17px 21px}.closing strong{font-size:18px}.page-footer{margin-top:12px}
+}
+</style>
+</head>
+<body>
+<a href="#work" class="skip">本文へ移動</a>
+<header class="site-header"><div class="header-inner">
+  <a class="brand" href="#work"><span class="brand-mark" aria-hidden="true"></span>QA OBSERVABILITY TEAM</a>
+  <nav class="nav" aria-label="ページ内ナビゲーション"><a href="#work">01 仕事</a><a href="#culture">02 働き方</a><a href="#future">03 これから</a></nav>
+  <button class="print-btn" onclick="window.print()" aria-label="印刷・PDF保存">印刷 / PDF保存</button>
+</div></header>
+<main>
+<!-- PAGE 1: What we do -->
+<section class="page page-work" id="work" aria-labelledby="work-title"><div class="page-inner">
+  <div class="page-no">01 / OUR WORK</div>
+  <h1 id="work-title">複雑なQAを、<br><em>「見える」仕組み</em>で支える。</h1>
+  <p class="lead">プロダクトとテストフレームワークの「何が起きているか」を追えるようにする。<br>私たちは、可観測性を使って問題解析と品質改善を支援する開発チームです。</p>
+  <div class="work-grid">
+    <article class="work-card">
+      <div class="label">THE PROJECT / 観測対象</div>
+      <h3>CI・自動テストが活躍する開発現場</h3>
+      <p>複雑な<strong>プロダクトとテストフレームワーク</strong>を開発するプロジェクト。CIと自動テストによる継続的な検証が行われています。</p>
+    </article>
+    <article class="work-card team">
+      <div class="label">OUR TEAM / 募集するチーム</div>
+      <h3>QAの「調べる」を、もっと速く・賢く</h3>
+      <p>テスト失敗の原因追跡、<strong>既知不具合の自動検知</strong>、テスト・ジョブをまたぐ影響把握。解析に役立つ仕組みを自分たちでつくります。</p>
+    </article>
+  </div>
+  <div class="work-divider">私たちの開発範囲</div>
+  <div class="work-flow" aria-label="私たちが開発する領域">
+    <div class="flow-item">OpenTelemetry<br>計装</div><span class="flow-arrow" aria-hidden="true">›</span>
+    <div class="flow-item">データ収集<br>・蓄積</div><span class="flow-arrow" aria-hidden="true">›</span>
+    <div class="flow-item">バックエンド</div><span class="flow-arrow" aria-hidden="true">›</span>
+    <div class="flow-item highlight">ダッシュボード<br>・解析支援</div>
+  </div>
+  <p class="work-bottom"><strong>画面をつくるだけではない。</strong> 観測の設計から、データ活用、QA業務の改善まで関われます。</p>
+</div></section>
+<!-- PAGE 2: How we work -->
+<section class="page page-culture" id="culture" aria-labelledby="culture-title"><div class="page-inner">
+  <div class="page-no">02 / HOW WE WORK</div>
+  <h2 id="culture-title">考え、選び、つくる。<br>エンジニア主導のチーム。</h2>
+  <p class="lead">アジャイルで領域を越えて取り組み、仕様も技術も自分たちで考える。<br>コーディングエージェントを活用した<strong>AI駆動開発</strong>にも積極的です。</p>
+  <div class="culture-cards">
+    <article class="culture-card"><div class="card-no">01 / CROSS-FUNCTIONAL</div><h3>領域を固定しない</h3><p>得意分野を活かしながら、計装・データ・Webまでチームで横断して開発。</p></article>
+    <article class="culture-card"><div class="card-no">02 / ENGINEER-DRIVEN</div><h3>技術選定にも裁量</h3><p>仕様や実装方法を提案・決定。課題の解き方から関わるスタイル。</p></article>
+    <article class="culture-card"><div class="card-no">03 / AI-DRIVEN</div><h3>AI駆動開発を実践</h3><p>コーディングエージェントを活用し、実装・検証や開発の進め方を改善。</p></article>
+  </div>
+  <div class="stack-top"><h3>関連する技術・ツール</h3><p>得意分野を入口に、少しずつ守備範囲を広げられる環境</p></div>
+  <div class="stack-grid" aria-label="主な技術スタック">
+    <div class="stack-group"><div class="stack-title">可観測性・データ</div><div class="tech-chips"><span class="tech-chip tech-chip--emphasis">OpenTelemetry</span><span class="tech-chip">Grafana</span><span class="tech-chip">ClickHouse</span><span class="tech-chip">PostgreSQL</span></div></div>
+    <div class="stack-group"><div class="stack-title">Web・バックエンド</div><div class="tech-chips"><span class="tech-chip tech-chip--emphasis">TypeScript</span><span class="tech-chip">Next.js</span><span class="tech-chip tech-chip--emphasis">Python</span><span class="tech-chip">Go</span><span class="tech-chip">Groovy</span></div></div>
+    <div class="stack-group"><div class="stack-title">CI/CD・開発基盤</div><div class="tech-chips"><span class="tech-chip">Jenkins</span><span class="tech-chip">GitHub Actions</span><span class="tech-chip">Docker</span><span class="tech-chip">Argo CD</span></div></div>
+    <div class="stack-group"><div class="stack-title">テスト自動化</div><div class="tech-chips"><span class="tech-chip">Playwright</span><span class="tech-chip">pytest</span><span class="tech-chip">JUnit</span><span class="tech-chip">Selenium</span></div></div>
+    <div class="stack-group"><div class="stack-title">協働・ナレッジ</div><div class="tech-chips"><span class="tech-chip">GitHub</span><span class="tech-chip">Slack</span><span class="tech-chip">Jira</span><span class="tech-chip">Confluence</span></div></div>
+    <div class="stack-group"><div class="stack-title">AI駆動開発</div><div class="tech-chips"><span class="tech-chip tech-chip--emphasis">コーディングエージェント</span><span class="tech-chip">生成AI</span></div></div>
+  </div>
+  <p class="stack-foot">※観測対象プロジェクト側の利用技術も含みます。強調表示はデザイン例で、必須スキルの指定ではありません。</p>
+</div></section>
+<!-- PAGE 3: Where you can grow -->
+<section class="page page-future" id="future" aria-labelledby="future-title"><div class="page-inner">
+  <div class="page-no">03 / WHAT'S NEXT</div>
+  <h2 id="future-title">いまの専門を、<em>次の強み</em>に。</h2>
+  <p class="lead">幅広い技術をつなぎ、課題を見つけ、改善を形にする。<br>ここには、エンジニアとして挑戦できる余白があります。</p>
+  <div class="future-grid">
+    <article class="future-card">
+      <div class="label">OUR NEXT CHALLENGE</div>
+      <h3>未知の問題の解析も、<br>AIとともに。</h3>
+      <p>OpenTelemetryで蓄積した構造化テストデータを活用し、未知の事象についてもAIが調査の手がかりを提示する仕組みに挑戦します。</p>
+      <span class="future-tag">これからの挑戦 / 構想段階</span>
+    </article>
+    <article class="growth-card">
+      <div class="label">YOUR GROWTH</div>
+      <h3>このチームで広げられる経験</h3>
+      <div class="growth-list">
+        <div class="growth-item"><span class="growth-icon" aria-hidden="true">↗</span><div><strong>システム全体を見渡す</strong><p>計装からデータ基盤、バックエンド、UIまでつなげて考える。</p></div></div>
+        <div class="growth-item"><span class="growth-icon" aria-hidden="true">✦</span><div><strong>課題から解決方法を設計する</strong><p>要件を受け取るだけでなく、仕様や技術選定にも関わる。</p></div></div>
+        <div class="growth-item"><span class="growth-icon" aria-hidden="true">◎</span><div><strong>ObservabilityとAIを実践する</strong><p>可観測性・自動化・AI活用を、現場の課題解決に結びつける。</p></div></div>
+      </div>
+    </article>
+  </div>
+  <div class="closing"><div><strong>得意分野を武器に、領域の境界を越えたい人へ。</strong><p>すべての技術を最初から知っている必要はありません。自ら学び、提案し、仲間と一緒につくる方を歓迎します。</p></div><span class="closing-arrow" aria-hidden="true">↗</span></div>
+  <div class="page-footer">QA OBSERVABILITY TEAM · INTRODUCTION</div>
+</div></section>
+</main>
+<script>
+(()=>{const anchors=[...document.querySelectorAll('.nav a')];if('IntersectionObserver' in window){const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){const hash='#'+e.target.id;anchors.forEach(a=>{const active=a.getAttribute('href')===hash;a.classList.toggle('active',active);if(active)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current')})}})},{rootMargin:'-25% 0px -65% 0px',threshold:0});document.querySelectorAll('.page').forEach(s=>obs.observe(s));}})();
+</script>
+</body>
+</html>
